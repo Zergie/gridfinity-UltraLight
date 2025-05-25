@@ -32,7 +32,9 @@ $scadFile      = (Resolve-Path "$PSScriptRoot\UltraLightGridfinityBins.scad").Pa
 $parameterFile = (Resolve-Path "$PSScriptRoot\UltraLightGridfinityBins.json").Path
 $configFile    = (Resolve-Path "$PSScriptRoot\config.json").Path
 $basedir       = [System.IO.Path]::GetDirectoryName($PSScriptRoot)
-$tempdir       =  (New-Item -ItemType Directory -Path "$env:TEMP\$([System.IO.Path]::GetRandomFileName())" ).FullName
+$tempdir       = (New-Item -ItemType Directory -Path "$env:TEMP\$([System.IO.Path]::GetRandomFileName())" ).FullName
+$url           = "https://zergie.github.io/gridfinity-UltraLight"
+$scheme        = "" # "orcaslicer://open?file=" # this is not working in orca-slicer 2.3.0, when the instance is running :(
 
 $json = [System.Collections.ArrayList]::new()
 Get-Content $configFile -Encoding utf8 |
@@ -295,7 +297,6 @@ if ($BuildImages) {
 
 if ($BuildMarkdown) {
 @(
-    "# Gridfinity UltraLight STL Files "
     "This repository contains STL files for Gridfinity UltraLight bins. These bins are designed to be lightweight and modular, making them ideal for organizing your workspace. Below, you will find a categorized list of available bins, along with their respective images and download links."
     $(
         $configs.Initialize("building README.md")
@@ -313,27 +314,27 @@ if ($BuildMarkdown) {
                                 Image = "![Image](./Images/$($_.Group[0].filename).png)"
                                 '1x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 0 |
-                                            ForEach-Object { "[$($_.filename)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[$($_.filename)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                                 '2x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 1 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                                 '3x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 2 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                                 '4x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 3 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                                 '5x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 4 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                                 '6x'  = $_.Group |
                                             Where-Object Dividers_X -EQ 5 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](orcaslicer://open?file=./STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
                             }
                         }
@@ -372,6 +373,7 @@ if ($BuildMarkdown) {
                         }
                         "|$($item -join "|")|"
                     }
+                ""
             } | 
             Join-String -Separator "`n"
     )
