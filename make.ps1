@@ -321,7 +321,11 @@ if ($BuildMarkdown) {
                                 Image = "![Image](./Images/$($group[0].filename).png)"
                                 '1x'  = $group |
                                             Where-Object Dividers_X -EQ 0 |
-                                            ForEach-Object { "[$($_.filename)](${scheme}$url/STLs/$($_.filename).stl)" } |
+                                            ForEach-Object { 
+                                                ((($_.Grids_X * 42 - 2) - ($_.Dividers_X)) / ($_.Dividers_X + 1)).ToString("0.0") + " mm"
+                                                "[$($_.filename)](${scheme}$url/STLs/$($_.filename).stl)" 
+                                            } |
+                                            Sort-Object -Unique -Descending |
                                             Join-String -Separator "<br>"
                             }
                             $dividers |
