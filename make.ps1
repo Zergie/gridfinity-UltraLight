@@ -299,7 +299,13 @@ if ($BuildMarkdown) {
 @(
     "This repository contains STL files for Gridfinity UltraLight bins. These bins are designed to be lightweight and modular, making them ideal for organizing your workspace. Below, you will find a categorized list of available bins, along with their respective images and download links."
     $(
-        $configs.Initialize("building README.md")
+        $configs.Initialize("building README.md 1/2")
+        $dividers = $(while ($configs.MoveNext()) { $configs.Current }) |
+            Group-Object Dividers_X |
+            ForEach-Object { [int]::Parse($_.Name) } |
+            Select-Object -Skip 1
+
+        $configs.Initialize("building README.md 2/2")
         $(while ($configs.MoveNext()) { $configs.Current }) |
             Group-Object Grids_Z |
             Sort-Object -Descending Name |
@@ -309,34 +315,31 @@ if ($BuildMarkdown) {
                     Value = $_.Group |
                         Group-Object { "$($_.Grids_X)x$($_.Grids_Y)x$($_.Grids_Z)" } |
                         ForEach-Object {
-                            [ordered]@{
-                                Size  = $_.Group[0].Grids_X
-                                Image = "![Image](./Images/$($_.Group[0].filename).png)"
-                                '1x'  = $_.Group |
+                            $group = $_.Group
+                            $row = [ordered]@{
+                                Size  = $group[0].Grids_X
+                                Image = "![Image](./Images/$($group[0].filename).png)"
+                                '1x'  = $group |
                                             Where-Object Dividers_X -EQ 0 |
                                             ForEach-Object { "[$($_.filename)](${scheme}$url/STLs/$($_.filename).stl)" } |
                                             Join-String -Separator "<br>"
-                                '2x'  = $_.Group |
-                                            Where-Object Dividers_X -EQ 1 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                            Join-String -Separator "<br>"
-                                '3x'  = $_.Group |
-                                            Where-Object Dividers_X -EQ 2 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                            Join-String -Separator "<br>"
-                                '4x'  = $_.Group |
-                                            Where-Object Dividers_X -EQ 3 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                            Join-String -Separator "<br>"
-                                '5x'  = $_.Group |
-                                            Where-Object Dividers_X -EQ 4 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                            Join-String -Separator "<br>"
-                                '6x'  = $_.Group |
-                                            Where-Object Dividers_X -EQ 5 |
-                                            ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                            Join-String -Separator "<br>"
                             }
+                            $dividers |
+                                ForEach-Object {
+                                    $row["$($_ +1)x"] = $group |
+                                        Where-Object Dividers_X -EQ $_ |
+                                        ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
+                                        Join-String -Separator "<br>"
+                                        # ForEach-Object { "$($_.filename).stl" } |
+                                        # Join-String -Separator "<br>"
+                                }
+
+                                # '2x'  = $_.Group |
+                                #             Where-Object Dividers_X -EQ 1 |
+                                #             ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
+                                #             Join-String -Separator "<br>"
+                            
+                            $row
                         }
                 }
             } |
