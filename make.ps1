@@ -328,17 +328,12 @@ if ($BuildMarkdown) {
                                 ForEach-Object {
                                     $row["$($_ +1)x"] = $group |
                                         Where-Object Dividers_X -EQ $_ |
-                                        ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
+                                        ForEach-Object { 
+                                            ((($_.Grids_X * 42 - 2) - ($_.Dividers_X)) / ($_.Dividers_X + 1)).ToString("0.0") + " mm"
+                                            "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)"
+                                        } |
                                         Join-String -Separator "<br>"
-                                        # ForEach-Object { "$($_.filename).stl" } |
-                                        # Join-String -Separator "<br>"
                                 }
-
-                                # '2x'  = $_.Group |
-                                #             Where-Object Dividers_X -EQ 1 |
-                                #             ForEach-Object { "[![Image](./Images/$($_.filename).png)](${scheme}$url/STLs/$($_.filename).stl)" } |
-                                #             Join-String -Separator "<br>"
-                            
                             $row
                         }
                 }
