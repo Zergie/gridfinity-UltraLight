@@ -1,22 +1,29 @@
 [cmdletbinding()]
 param(
+    [Parameter()]
     [switch]
     $BuildStls,
 
+    [Parameter()]
     [switch]
     $BuildImages,
 
+    [Parameter()]
     [switch]
     $Force,
 
+    [Parameter()]
     [int]
-    $Processes = 10
+    $Processes = 10,
+
+    [Parameter()]
+    [int[]]
+    $ImageSize =@(256,256)
 )
 $ErrorActionPreference = 'Break'
 $Debug =
-if (!$BuildStls -and !$BuildMarkdown -and !$BuildImages) {
+if (!$BuildStls -and !$BuildImages) {
     $BuildStls = $true
-    $BuildMarkdown = $true
     $BuildImages = $true
 }
 $openscad      = . $PSScriptRoot\Get-OpenScad.ps1
@@ -104,7 +111,8 @@ Get-Content $configFile -Encoding utf8 |
                         $item.Grids_Y
                         "x"
                         $item.Grids_Z
-                        if ($item.Dividers_X -gt 0){ "x$($item.Dividers_X + 1)" }
+                        if ($item.Dividers_X -gt 0 -or $item.Dividers_Y -gt 0){ "x$($item.Dividers_X + 1)" }
+                        if ($item.Dividers_Y -gt 0){ "x$($item.Dividers_Y + 1)" }
                         if ($item.Scoops -eq $false){"_noscoop"}
                         if ($item.Labels -eq $false){"_notab"}
                     ) | Join-String -Separator ""
@@ -124,6 +132,7 @@ Get-Content $configFile -Encoding utf8 |
     }
 $json | 
     Select-Object -ExcludeProperty OpenScad, Paths |
+    Sort-Object filename -Unique |
     ConvertTo-Json -Compress |
     Set-Content $tocFile -Encoding utf8
 
@@ -171,7 +180,7 @@ function Clear-Directory {
 
         [string] $Filter 
     )
-
+    Write-Host -ForegroundColor Magenta $Force
     if ($Force) {
         # remove ALL files
         @(
@@ -264,7 +273,7 @@ if ($BuildImages) {
                 Set-Content $scadFile
 
             Write-Host -ForegroundColor Green "building $filename.png"
-            $openscad.Invoke("`"$scadFile`" --imgsize=128,128 --projection ortho --colorscheme Tomorrow -o `"$filename.png`"")
+            $openscad.Invoke("`"$scadFile`" --imgsize=$($ImageSize[0]),$($ImageSize[1]) --projection ortho --colorscheme Tomorrow -o `"$filename.png`"")
         }
     } 
 

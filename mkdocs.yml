@@ -3,9 +3,9 @@ site_url: https://zergie.github.io/gridfinity-UltraLight/
 repo_url: https://github.com/Zergie/gridfinity-UltraLight
 theme:
   name: darkly
-extra_css:
-  - css/styles.css
 plugins:
   - macros
+extra_css:
+  - css/styles.css
 extra_javascript:
   - js/highlight-column.js

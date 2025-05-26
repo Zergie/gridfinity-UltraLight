@@ -19,14 +19,15 @@ def define_env(env):
 
     @env.macro
     def stl_table(query:str):
-        jsonpath_expr = parse(query)
+        def format_head(item:dict):
+            return str((item['Dividers_X']+1)*(item['Dividers_Y']+1))
 
-        configurations = get_configurations()
-        
-        header = ["Size", "Image"] + [f"{x}x" for x in sorted(list(set(x['Dividers_X']+1 for x in configurations)))]
+        configurations = [match.value for match in parse(query).find(get_configurations())]
+        header = ["Size", "Image"] + [x for x in sorted(list(set(format_head(x) for x in configurations)), key=int) if x != "0"]
+
         def get_rows():
             groups = defaultdict(list)
-            for item in [match.value for match in jsonpath_expr.find(configurations)]:
+            for item in configurations:
                 groups[item['Grids_X']].append(item)
 
             for key in sorted(groups.keys()):
@@ -40,14 +41,14 @@ def define_env(env):
                     "<br>".join(
                         [f"{(items[0]['Grids_X'] * 42 -2) :.1f} mm ",] 
                         + 
-                        [f"[{'With Scoop' if item['Scoops'] == 'true' else 'No Scoop'}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
+                        [f"[{'With Scoop' if item['Scoops'] == 'true' else 'No Scoop'}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == items[0]['Dividers_X']]
                     ),
                 ]
                 cols_freezed = len(row)
                 row += ["" for _ in header[cols_freezed:]]
                 
                 for item in items:
-                    index = 2 + item['Dividers_X']
+                    index = header.index(format_head(item))
                     if index >= cols_freezed:
                         row[index] += f"{((item['Grids_X'] *42 -2) - item['Dividers_X']) / (item['Dividers_X'] + 1) :.1f} mm"                    
                         row[index] += "<br>"
@@ -58,7 +59,7 @@ def define_env(env):
         return format_table(header, get_rows())
     
     if __name__ == '__main__':
-        print(stl_table('$[?Grids_Y == 1 & Grids_Z == 6]'))
+        print(stl_table('$[?Grids_Y == 2 & Grids_Z == 6 & Dividers_Y == 1]'))
 
 if __name__ == '__main__':
     env = type('env', (object,), {

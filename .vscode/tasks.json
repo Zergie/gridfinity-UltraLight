@@ -14,6 +14,12 @@
             "type": "shell",
             "command": "mkdocs gh-deploy",
             "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "pwsh -nop '${workspaceFolder}/Build-Project.ps1'",
+            "problemMatcher": []
         }
     ]
 }
