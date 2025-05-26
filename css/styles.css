@@ -18,7 +18,12 @@ body {
         flex-basis: 80%;
         /* max-width: none; */
     }
-
+    li[data-bs-level="1"] a {
+        margin-left: -8px;
+    }
+    li[data-bs-level="2"] {
+        margin-left: 16px;
+    }
     table {
         margin-top: 3rem;
 
@@ -40,7 +45,13 @@ body {
         th {
             min-width: 48px;
         }
-
+        th:not(:first-child):not(:nth-child(2)) {
+            text-align: center;
+        }
+        th:not(:first-child):not(:nth-child(2))::after {
+            content: " x";
+            font-size: 0.8rem;
+        }
         td {
             text-align: center;
             vertical-align: top;
