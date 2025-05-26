@@ -1,26 +1,33 @@
 body {
 
-    h1,
-    h2 {
+    h1, h2, h3 {
         margin-top: 3rem;
     }
 
+    .container {
+        max-width: none;
+    }
+    .row {
+        max-width: 75%;
+    }
     .col-md-3 { 
-        display: none; /* hide sidebar */
+        /* display: none; hide sidebar */
+        max-width: 170px;
+    }
+    .col-md-9 { 
+        flex-basis: 80%;
+        /* max-width: none; */
     }
 
     table {
-        margin-top: 1rem;
+        margin-top: 3rem;
 
         .highlight {
             background-color: rgb(85, 85, 85);
         }
 
-        td:first-child {
-            vertical-align: middle;
-        }
-
         tbody {
+            
             tr:nth-child(odd) {
                 background-color: #282828;
             }
@@ -37,6 +44,12 @@ body {
         td {
             text-align: center;
             vertical-align: top;
+        }
+        td:first-child {
+            vertical-align: middle;
+        }
+        td:not(:first-child) {
+            min-width: 130px;
         }
     }
 

@@ -9,8 +9,3 @@ plugins:
   - macros
 extra_javascript:
   - js/highlight-column.js
-  # - https://cdn.jsdelivr.net/npm/three@0.176.0/build/three.min.js
-  # - https://cdn.jsdelivr.net/npm/three@0.176.0/examples/js/loaders/STLLoader.js
-  # - https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js
-  # - https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/loaders/STLLoader.js
-  # - js/render-stl.js

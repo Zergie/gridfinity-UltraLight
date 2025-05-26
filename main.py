@@ -39,11 +39,15 @@ def define_env(env):
                 items = groups[key]
                 row = [
                     key,
-                    f"![Image](./images/{items[0]['filename']}.png)",
+                    "<br>".join([
+                        f"{(items[0]['Grids_X'] * 42 -2) :.1f} mm ",
+                        f"![Image](./images/{items[0]['filename']}.png)",
+                    ]),
                     "<br>".join(
                         [f"{((item['Grids_X'] *42 -2) - item['Dividers_X']) / (item['Dividers_X'] + 1) :.1f} mm",] 
                         + 
-                        [f"[{item['filename']}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
+                        [f"[{'With Scoop' if item['Scoops'] == 'true' else 'No Scoop'}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
+                        # [f"[{item['filename']}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
                     ),
                 ]
                 cols_freezed = len(row)
