@@ -1,40 +1,40 @@
 [{
     "Grids_X": [1,2,3,4,5,6],
-    "Grids_Y": 1,
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": ["true", "false"],
     "Dividers_X": 0
 },{
-     "Grids_X": [1,2,3,4,5,6],
-    "Grids_Y": 1,
+    "Grids_X": [1,2,3,4,5,6],
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": "true",
     "Dividers": "true",
     "Dividers_X": 1
 },{
     "Grids_X": [2,3,4,5,6],
-    "Grids_Y": 1,
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": "true",
     "Dividers": "true",
     "Dividers_X": [2,3]
 },{
     "Grids_X": [3,4,5,6],
-    "Grids_Y": 1,
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": "true",
     "Dividers": "true",
     "Dividers_X": [4,5]
 },{
     "Grids_X": [4,5,6],
-    "Grids_Y": 1,
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": "true",
     "Dividers": "true",
     "Dividers_X": [6]
 },{
     "Grids_X": [5,6],
-    "Grids_Y": 1,
+    "Grids_Y": [1,2],
     "Grids_Z": [3,6],
     "Scoops": "true",
     "Dividers": "true",

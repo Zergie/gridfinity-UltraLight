@@ -1,6 +1,7 @@
 import os
 import json
 from collections import defaultdict
+from jsonpath_ng.ext import parse
 
 def define_env(env):
     def get_configurations():
@@ -17,37 +18,29 @@ def define_env(env):
         return "\n".join(generator(header, rows))
 
     @env.macro
-    def stl_table(filter:str, value:any):
-        # info = [
-        #     "variables: " + repr(env.variables),
-        #     "conf: " + repr(env.conf),
-        #     "config: " + repr(env.config),
-        #     "page: " + repr(env.page),
-        #     ">>" + repr(env.conf['site_url']),
-        # ]
-        # return "<br><br>".join(info)
+    def stl_table(query:str):
+        jsonpath_expr = parse(query)
+
         configurations = get_configurations()
         
         header = ["Size", "Image"] + [f"{x}x" for x in sorted(list(set(x['Dividers_X']+1 for x in configurations)))]
         def get_rows():
             groups = defaultdict(list)
-            for item in configurations:
-                if item[filter] == value:
-                    groups[item['Grids_X']] .append(item)
+            for item in [match.value for match in jsonpath_expr.find(configurations)]:
+                groups[item['Grids_X']].append(item)
 
             for key in sorted(groups.keys()):
                 items = groups[key]
                 row = [
                     key,
                     "<br>".join([
-                        f"{(items[0]['Grids_X'] * 42 -2) :.1f} mm ",
+                        "",
                         f"![Image](./images/{items[0]['filename']}.png)",
                     ]),
                     "<br>".join(
-                        [f"{((item['Grids_X'] *42 -2) - item['Dividers_X']) / (item['Dividers_X'] + 1) :.1f} mm",] 
+                        [f"{(items[0]['Grids_X'] * 42 -2) :.1f} mm ",] 
                         + 
                         [f"[{'With Scoop' if item['Scoops'] == 'true' else 'No Scoop'}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
-                        # [f"[{item['filename']}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == 0]
                     ),
                 ]
                 cols_freezed = len(row)
@@ -65,7 +58,7 @@ def define_env(env):
         return format_table(header, get_rows())
     
     if __name__ == '__main__':
-        print(stl_table('Grids_Z', 6))
+        print(stl_table('$[?Grids_Y == 1 & Grids_Z == 6]'))
 
 if __name__ == '__main__':
     env = type('env', (object,), {

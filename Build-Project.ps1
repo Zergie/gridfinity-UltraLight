@@ -72,7 +72,7 @@ Get-Content $configFile -Encoding utf8 |
                         
                         $process = Get-Process openscad -ErrorAction SilentlyContinue
                         if ($null -ne $process.Name) {
-                            while ((Get-Process openscad | Measure-Object).Count -ge $Processes) {
+                            while ((Get-Process openscad -ErrorAction SilentlyContinue | Measure-Object).Count -ge $Processes) {
                                 Start-Sleep -Seconds 1
                             }
                         }
