@@ -9,6 +9,7 @@
     "Grids_Y": 1,
     "Grids_Z": [3,6],
     "Scoops": "true",
+    "Dividers": "true",
     "Dividers_X": 1
 },{
     "Grids_X": [2,3,4,5,6],

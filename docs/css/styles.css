@@ -1,0 +1,48 @@
+body {
+
+    h1,
+    h2 {
+        margin-top: 3rem;
+    }
+
+    .col-md-3 { 
+        display: none; /* hide sidebar */
+    }
+
+    table {
+        margin-top: 1rem;
+
+        .highlight {
+            background-color: rgb(85, 85, 85);
+        }
+
+        td:first-child {
+            vertical-align: middle;
+        }
+
+        tbody {
+            tr:nth-child(odd) {
+                background-color: #282828;
+            }
+
+            tr:nth-child(even) {
+                background-color: #222222;
+            }
+        }
+
+        th {
+            min-width: 48px;
+        }
+
+        td {
+            text-align: center;
+            vertical-align: top;
+        }
+    }
+
+    img {
+        max-width: 128px !important;
+        background-color: transparent !important;
+        border: 0px solid !important;
+    }
+}
