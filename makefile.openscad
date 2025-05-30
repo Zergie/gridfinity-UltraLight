@@ -1,0 +1,44 @@
+# Generate all STLs for each JSON file in generated/
+RENDER_SIZE = 1024
+IMAGE_SIZE = 256
+STL_TARGETS := $(patsubst generated/%.json,docs/STLs/%.stl,$(wildcard generated/*.json))
+PNG_TARGETS := $(patsubst docs/STLs/%.stl,docs/images/%.png,$(wildcard docs/STLs/*.stl))
+
+all: stl png
+stl: $(STL_TARGETS) 
+png: $(PNG_TARGETS)
+
+docs/STLs/%.stl: generated/%.json
+	docker run \
+		--rm \
+		-v $(shell pwd):/openscad \
+		-u $(shell id -u ${USER}):$(shell id -g ${USER}) \
+		openscad/openscad:latest \
+		openscad -o $@ -p $< -P make --export-format binstl UltraLightGridfinityBins.scad
+
+generated/%.scad: docs/STLs/%.stl
+	echo "color(\"DarkCyan\")" > $@
+	echo "import(\"../$<\");"  >> $@
+
+docs/images/%.png: generated/%.scad docs/STLs/%.stl
+	docker run \
+		--rm \
+		--init \
+		-v $(shell pwd):/openscad \
+		-u $(shell id -u ${USER}):$(shell id -g ${USER}) \
+		openscad/openscad:latest \
+		xvfb-run openscad -o $@.render.png --imgsize=$(RENDER_SIZE),$(RENDER_SIZE) --projection ortho --colorscheme Tomorrow $<
+	docker run \
+		--rm \
+		-v $(shell pwd):/imgs \
+		dpokidov/imagemagick $@.render.png -resize $(IMAGE_SIZE)x$(IMAGE_SIZE) -alpha off -bordercolor 'rgb(248,248,248)' -border 1 \
+    		\( +clone -fuzz 30% -fill none -floodfill +0+0 'rgb(248,248,248)' \
+      		-alpha extract -geometry 200% -blur 0x0.5 \
+       		-morphology erode square:1 -geometry 50% \) \
+    -compose CopyOpacity -composite -shave 1 $@
+	rm $@.render.png
+
+clean:
+	rm -rf generated/*.scad
+	rm -rf docs/images/*
+	rm -rf docs/STLs/*

@@ -20,6 +20,12 @@
             "type": "shell",
             "command": "pwsh -nop '${workspaceFolder}/Build-Project.ps1'",
             "problemMatcher": []
+        },
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "wsl --cd '${workspaceFolder}' make -d",
+            "problemMatcher": []
         }
     ]
 }
