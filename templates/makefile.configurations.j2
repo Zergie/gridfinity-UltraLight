@@ -1,0 +1,69 @@
+{% set generated = [] %}
+
+{% for gx in [1,2,3,4,5,6] %}
+{% for gy in [1,2] %}
+{% for gz in [3,6] %}
+{% for dx in [0,1,2,3,4,5,6,7,8,9] %}
+{% for dy in [0,1] %}
+{% for s in [True, False] %}
+{% if (dx == 0 and dy == 0) or s %}
+{% set w = (42 * gx - dx) / (dx+1) %}
+{% set h = (42 * gy) - (dy+1) * 13 %}
+{% if w > 18 and h > 18 %}
+{% set _ = generated.append((w, h, gx, gy, gz, dx, dy, s)) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+PYTHON = {{ PYTHON }}
+
+TARGETS := \
+{% for (w, h, gx, gy, gz, dx, dy, s) in generated %}
+{% set filename = "generated/" + ([gx, gy, gz, dx+1, dy+1] | join("x")) + ("" if s else "_noscoop") + ".json" %}
+  {{ filename }}{% if not loop.last %} \{{ newline }}{% endif %}
+{% endfor %}
+{{ newline }}
+.PHONY: all clean-unused clean
+all: clean-unused $(TARGETS)
+ 
+ifndef ECHO
+T := $(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
+      -nrRf $(firstword $(MAKEFILE_LIST)) \
+      ECHO="COUNTTHIS" | grep -c "COUNTTHIS")
+
+N := x
+C = $(words $N)$(eval N := x $N)
+ECHO = ${PYTHON} scripts/echo_progress.py --stepno=$C --nsteps=$T
+endif
+
+{% for (w, h, gx, gy, gz, dx, dy, s) in generated %}
+{% set filename = "generated/" + ([gx, gy, gz, dx+1, dy+1] | join("x")) + ("" if s else "_noscoop") + ".json" %}
+{% set data = "{" + ((
+	(("\"w\"", w) | join(": ")), 
+	(("\"h\"", h) | join(": ")), 
+	(("\"gx\"", gx) | join(": ")), 
+	(("\"gy\"", gy) | join(": ")), 
+	(("\"gz\"", gz) | join(": ")), 
+	(("\"dx\"", dx) | join(": ")), 
+	(("\"dy\"", dy) | join(": ")),
+	(("\"s\"", "\"true\"" if s else "\"false\"") | join(": ")) 
+	) | join(", ")) + "}"
+%}
+{{ filename }}: templates/UltraLightGridfinityBins.json.j2
+{{ tab }}@$(ECHO) Compiling $@
+{{ tab }}@$(PYTHON) scripts/render_with_jinja.py $< '{{data}}' $@
+{% endfor %}
+
+clean-unused:
+{{ tab }}@TMPFILE=$$(mktemp) && \
+{{ tab }}{{ tab }}printf "%s\n" $(TARGETS) > $$TMPFILE && \
+{{ tab }}{{ tab }}find generated -name "*.json" | grep -v -F -f $$TMPFILE | xargs -r rm -f && \
+{{ tab }}{{ tab }}rm -f $$TMPFILE
+
+clean:
+{{ tab }}rm -rf generated/*.json

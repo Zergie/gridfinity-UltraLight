@@ -1,0 +1,70 @@
+RENDER_SIZE := 1024
+IMAGE_SIZE  := 128
+STL_TARGETS := $(patsubst generated/%.json,docs/STLs/%.stl,$(wildcard generated/*.json))
+PNG_TARGETS := $(patsubst docs/STLs/%.stl,docs/images/%.png,$(wildcard docs/STLs/*.stl))
+PYTHON      := python3
+
+.PHONY: stl png clean-unused clean
+all: stl png
+stl: clean-unused  $(STL_TARGETS) 
+png: clean-unused $(PNG_TARGETS)
+
+ifndef ECHO
+T := $(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
+      -nrRf $(firstword $(MAKEFILE_LIST)) \
+      ECHO="COUNTTHIS" | grep -c "COUNTTHIS")
+
+N := x
+C = $(words $N)$(eval N := x $N)
+ECHO = ${PYTHON} scripts/echo_progress.py --stepno=$C --nsteps=$T
+endif
+
+
+
+docs/STLs/%.stl: generated/%.json
+	@$(ECHO) Compiling $@
+	@if [ ! -f $@ ]; then docker run --rm -v $(shell pwd):/openscad -u $(shell id -u ${USER}):$(shell id -g ${USER}) \
+		openscad/openscad:latest \
+		openscad -o $@ -p $< -P make UltraLightGridfinityBins.scad > /dev/null 2>&1; \
+	fi
+
+generated/%.scad: docs/STLs/%.stl
+	@echo "color(\"DarkCyan\")" > $@
+	@echo "import(\"../$<\");"  >> $@
+
+generated/%.png: generated/%.scad docs/STLs/%.stl
+	@$(ECHO) Compiling $@
+	@if [ ! -f $@ ]; then docker run --rm --init -v $(shell pwd):/openscad -u $(shell id -u ${USER}):$(shell id -g ${USER}) \
+		openscad/openscad:latest \
+		xvfb-run openscad -o $@ --imgsize=$(RENDER_SIZE),$(RENDER_SIZE) --projection ortho --colorscheme Tomorrow $<  > /dev/null 2>&1; \
+	fi
+
+docs/images/%.png: generated/%.png
+	@$(ECHO) Compiling $@
+	@if [ ! -f $@ ]; then docker run --rm -v $(shell pwd):/imgs \
+		dpokidov/imagemagick $< -resize $(IMAGE_SIZE)x$(IMAGE_SIZE) -alpha off -bordercolor 'rgb(248,248,248)' -border 1 \
+			\( +clone -fuzz 30% -fill none -floodfill +0+0 'rgb(248,248,248)' \
+			-alpha extract -geometry 200% -blur 0x0.5 \
+			-morphology erode square:1 -geometry 50% \) \
+		-compose CopyOpacity -composite -shave 1 $@ > /dev/null; \
+	fi
+
+clean-unused:
+	@TMPFILE=$$(mktemp) && \
+		printf "%s\n" $(STL_TARGETS) > $$TMPFILE && \
+		find docs/STLs   -name "*.stl" | grep -v -F -f $$TMPFILE | xargs -r rm -f && \
+		rm -f $$TMPFILE
+	@TMPFILE=$$(mktemp) && \
+		printf "%s\n" $(PNG_TARGETS) > $$TMPFILE && \
+		find docs/images -name "*.png" | grep -v -F -f $$TMPFILE | xargs -r rm -f && \
+		rm -f $$TMPFILE
+	@TMPFILE=$$(mktemp) && \
+		printf "%s\n" $(PNG_TARGETS) > $$TMPFILE && \
+		find generated -name "*.png" | grep -v -F -f $$TMPFILE | xargs -r rm -f && \
+		rm -f $$TMPFILE
+
+clean:
+	rm -rf generated/*.scad
+	rm -rf generated/*.png
+	rm -rf docs/images/*
+	rm -rf docs/STLs/*

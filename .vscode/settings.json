@@ -4,5 +4,10 @@
         "reportMissingModuleSource": "none",
         "reportShadowedImports": "none"
     },
-    "circuitpython.board.version": null
+    "circuitpython.board.version": null,
+    "python.analysis.extraPaths": [
+        "c:\\Users\\user\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\boards\\0x239A\\0x80F4",
+        "c:\\Users\\puchinger\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\stubs",
+        "c:\\Users\\puchinger\\AppData\\Roaming\\Code\\User\\globalStorage\\wmerkens.vscode-circuitpython-v2\\bundle\\20250523\\adafruit-circuitpython-bundle-py-20250523\\lib"
+    ]
 }

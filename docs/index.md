@@ -1,8 +1,6 @@
 
 This repository contains STL files for Gridfinity UltraLight bins. These bins are designed to be lightweight and modular, making them ideal for organizing your workspace. Below, you will find a categorized list of available bins, along with their respective images and download links. 
 
-Please note: The provided links are compatible with OrcaSlicer 2.3.0. They may not work as intended with OrcaSlicer 2.4.0 or later versions.
-
 # Full Size
 These bins are the default size. They are {{ 6 * 7 }} mm heigh and perfect for storing larger items while maintaining a compact and organized setup. Explore the available options below to find the right fit for your needs.
 

@@ -1,3 +1,13 @@
+# Project 
+UltraLightGridfinityBins.json
+docs/STLs
+!docs/STLs/.gitkeep
+docs/images
+!docs/images/.gitkeep
+generated
+!generated/.gitkeep
+makefile.configurations
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -63,6 +73,7 @@ target/
 .python-version
 
 # virtualenv
+.venv
 venv/
 ENV/
 

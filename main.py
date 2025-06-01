@@ -5,9 +5,14 @@ from jsonpath_ng.ext import parse
 
 def define_env(env):
     def get_configurations():
-        config_path = os.path.join(os.getcwd(), 'docs', 'configurations.json')
-        with open(config_path, 'r') as file:
-            return json.load(file)
+        result = []
+        path = os.path.join(os.getcwd(), 'generated')
+        for cfg in [x for x in os.listdir(path) if x.endswith(".json")]:
+            with open(os.path.join(os.getcwd(), 'generated', cfg), 'r') as file:
+                obj = json.load(file)['parameterSets']['make']
+                obj['filename'] = os.path.splitext(cfg)[0]
+                result.append(obj)
+        return result
     
     def format_table(header, rows):
         def generator(header, rows):
@@ -39,7 +44,7 @@ def define_env(env):
                         f"![Image](./images/{items[0]['filename']}.png)",
                     ]),
                     "<br>".join(
-                        [f"{(items[0]['Grids_X'] * 42 -2) :.1f} mm ",] 
+                        [f"{items[0]['width']:.1f} mm ",] 
                         + 
                         [f"[{'With Scoop' if item['Scoops'] == 'true' else 'No Scoop'}](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)" for item in items if item['Dividers_X'] == items[0]['Dividers_X']]
                     ),
@@ -50,7 +55,7 @@ def define_env(env):
                 for item in items:
                     index = header.index(format_head(item))
                     if index >= cols_freezed:
-                        row[index] += f"{((item['Grids_X'] *42 -2) - item['Dividers_X']) / (item['Dividers_X'] + 1) :.1f} mm"                    
+                        row[index] += f"{item['width']:.1f} mm"                    
                         row[index] += "<br>"
                         row[index] += f"[![Image](./images/{item['filename']}.png)](orcaslicer://open?file={env.conf['site_url']}/STLs/{item['filename']}.stl)"
 
